@@ -398,7 +398,7 @@ void loop() {
   cajasp=Cantidad_cajasp(distancia_pila);
   scajas=cajasp+'0';
   Serial5.write(scajas);
-  distancia_carga=distancia_pilacarga();
+  distancia_pilacarga();
   //cajasc=Cantidad_cajasp(distancia_carga);
   distancia_vertical (cajasc);
   servo1.write(80);
