@@ -52,7 +52,7 @@ def distancia(x2,x1,y2,y1):
     a = (x2-x1)**2
     b2 = (y2-y1)**2
     c2 = a+b2
-    d = math.sqrt(c)
+    d = math.sqrt(c2)
     return d
 
 ## Función para calcular la distancia focal o "focal length".
@@ -61,7 +61,7 @@ def distancia(x2,x1,y2,y1):
 ## Este valor obtenido se utiliza para el cálculo de las demás distancias.
 def distanciaFocal(p):
     w = 45
-    d2 = 20
+    d2 = 11
     a = p*d2
     f = a/w
     return f
@@ -71,11 +71,13 @@ def calibracionCamara(captura):
                                       ## variables "valIni" y "frameIni".
      
     if valIni:
+       print 1
        imagen_zbar= pyzbar.decode(frameIni) ## Decodifica el frame guardado
                                             ## en formato de lista.
        for codigo_qrIni in imagen_zbar: ## Recorre la lista con la variable llamada:
                                          ## "codigo_qrIni"
             
+                print 2
                 coorIni = codigo_qrIni.polygon ## Guarda las coordenadas de los 4 bordes
                                                ## del código Qr en formato de lista de tuplas.
                 
@@ -94,11 +96,21 @@ def distanciaAcamara(f,P):
     D = a/P
     return D
 
+Boton = 'x'
+while (Boton != 'q'):
+    Boton = arduino.read()
+    #print Boton
+
 #Inicializar la camara
-capture = cv2.VideoCapture(0)
-distanciaF = calibracionCamara(capture) 
-print("distancia focal: ", distanciaF)
- 
+if Boton == 'q' :
+   capture = cv2.VideoCapture(0)
+   distanciaF = calibracionCamara(capture) 
+   #if distanciaF > 0:  #Envía una señal para encender los LEDs de calibración 
+        #arduino.write("L")    
+   #else:
+    #print("Error en la calibracion.")
+    
+    
 while 1:
     comando=arduino.read();
     if(comando=='t'):
@@ -120,15 +132,8 @@ while 1:
                 elif dat=='dispositivosmedicos':
                     arduino.write('d')
                     m+=1
-           
-   
-        #contadore+=1
-        #d1 = str(datetime.now())
-        #h.write('\n'+'\n' + 'Se produjo un error por espacio lleno en pila de banano a las: ')
-        #h.write(d1)
-        #h.close()
+        #comando = arduino.read()            
   
-
     if comando=='d':
         time.sleep(10)
         #Capturar un frame
@@ -144,7 +149,7 @@ while 1:
                     anchoP = distancia(coor[1][0],coor[0][0],coor[1][1],coor[0][1]) ##Se calcula el ancho aparente de cada Qr.
                     distanciaCamara = distanciaAcamara(distanciaF,anchoP) ## Se aproxima la distancia según este ancho y la distancia focal previamente calibrada.
                     #print ("ancho percibido por la cámara(pixeles): ",anchoP)
-                    dist=round(distanciaAcamara,0)
+                    dist=round(distanciaCamara,0)
                     if (dist== 5):
                         arduino.write('5')
                     elif (dist==10):
