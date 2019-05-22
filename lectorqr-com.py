@@ -106,9 +106,11 @@ if Boton == 'q' :
    capture = cv2.VideoCapture(0)
    distanciaF = calibracionCamara(capture) 
    #if distanciaF > 0:  #Envía una señal para encender los LEDs de calibración 
-        #arduino.write("L")    
+        #arduino.write('L')
+        #print("Calibrado.")
    #else:
-    #print("Error en la calibracion.")
+        #arduino.write('E')
+        #print("Error en la calibracion.")
     
     
 while 1:
