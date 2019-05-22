@@ -17,8 +17,8 @@
 #define Echo_pinCA  A2
 #define distancia_max 200
 //LEDs
-#define led_b A3
-#define led_c A4
+#define led_b A4
+#define led_c A3
 #define led_d A5
 //Interrupción por botón
 #define boton 3
@@ -37,12 +37,13 @@ int distancia_disp=0;
 int distancia_pila=0;
 int cajasc=0;
 int cajasp=0;
+volatile int contInicio = 0;
+char inicio = 'x';
 char QR='a';
 char QR2='a';
 char scajas;
 char ccajas;
 int distanciaint=0;
-volatile int btn = 0;
 
 
 //*****MOVIMIENTO SERVOMOTOR******//
@@ -133,8 +134,7 @@ void distancia_pilas(){//FUNCION TOMA LAS DISTANCIAS DE LAS PILAS, PARA ENCENDID
    SerialUSB.println(distancia_disp);
    delay(30);
    //distancia_carga=(pilacarg.ping_median())/US_ROUNDTRIP_CM;
-   contador++;
- if (distancia_banano==32||distancia_banano==33){ 
+ if (distancia_banano<=34){ 
   digitalWrite(led_b, HIGH);
   //Serial.write("ledb1");//manda comando para encendido de led banano
   }
@@ -142,7 +142,7 @@ void distancia_pilas(){//FUNCION TOMA LAS DISTANCIAS DE LAS PILAS, PARA ENCENDID
   digitalWrite(led_b, LOW);
   //Serial.write("ledb0");//manda comando para apagado de led
   }
- if (distancia_cafe==32||distancia_cafe==33){ 
+ if (distancia_cafe<=34){ 
   digitalWrite(led_c, HIGH);
  //Serial.write("ledc1");//manda comando para encendido de led cafe
   }
@@ -150,7 +150,7 @@ void distancia_pilas(){//FUNCION TOMA LAS DISTANCIAS DE LAS PILAS, PARA ENCENDID
   digitalWrite(led_c, LOW);
   //Serial.write("ledc0");//manda comando para apagado de led
   }
- if (distancia_disp==32||distancia_disp==33){ 
+ if (distancia_disp<=34){ 
   digitalWrite(led_d, HIGH);
   //Serial.write("ledd1");//manda comando para encendido de led dispositivos medicos
   }
@@ -240,35 +240,52 @@ int Cantidad_cajasp(int distancia){
     else if ((distancia >=35) && (distancia <=39)){
       cajas=4; 
     }
-    else if ((distancia >=30) && (distancia <=34)){
+    else if (distancia <=34){
       cajas=5; 
       return cajas;
     }return cajas;
   }
 //*****FIN-SENSORES ULTRASÓNICOS*****//
 
+//*****Función Blink LED*****//
+void calibracion(char Q){
+ int i=0; 
+ if (Q == 'L'){
+   for (i=0; i<2; i++){
+     digitalWrite(led_b, HIGH);
+     digitalWrite(led_c, HIGH);
+     digitalWrite(led_d, HIGH);
+     delay (20);
+     digitalWrite(led_b, LOW);
+     digitalWrite(led_c, LOW);
+     digitalWrite(led_d, LOW);
+     delay (20);
+   }
+ }else if (Q == 'E'){
+    for (i=0; i<2; i++){
+      digitalWrite(led_b, HIGH);
+      delay (6);
+      digitalWrite(led_b, LOW);
+      delay (6);
+      digitalWrite(led_c, HIGH);
+      delay (6);
+      digitalWrite(led_c, LOW);
+      delay (6);
+      digitalWrite(led_d, HIGH);
+      delay (6);
+      digitalWrite(led_d, LOW);
+      delay (6);  
+    }
+ }
+}
+
+//*****Interrupción*****//
 void botonazo(){
+  contInicio = 0;
   Serial5.write('q');
 }
 
-void setup() {
-      Serial5.begin(9600);
-      pinMode(led_b, OUTPUT);
-      pinMode(led_c, OUTPUT);
-      pinMode(led_d, OUTPUT);
-      pinMode(Pink1, OUTPUT); 
-      pinMode(Orange1, OUTPUT); 
-      pinMode(Blue1, OUTPUT); 
-      pinMode(Yellow1, OUTPUT);
-      pinMode(Pink2, OUTPUT); 
-      pinMode(Orange2, OUTPUT); 
-      pinMode(Blue2, OUTPUT); 
-      pinMode(Yellow2, OUTPUT);
-      servo1.attach(pinServo);
-      attachInterrupt(digitalPinToInterrupt(3),pilallena, RISING); //INTERRUPCION PIN 3;
-      servo1.write(0);
-
-}
+//*****Interrupción de funcionamiento por pila llena*****//
 void pilallena(){
   //lectura de qr y guardado en QR2
   QR2=QR;
@@ -291,6 +308,7 @@ void pilallena(){
   }
 
 
+//*****Función para movimiento horizontal*****//
 void movimiento_horizontal (char qr){
   switch (qr){
     case 'b':
@@ -325,10 +343,9 @@ void movimiento_horizontal (char qr){
       break;
     
     }
-  
-  
   }
-  
+
+//*****Función para movimiento vertical*****//
 void distancia_vertical(int cant_cajas){
   switch (cant_cajas){
     case 0:
@@ -387,38 +404,67 @@ void distancia_vertical(int cant_cajas){
     default:
       break;
     }
-  
   }
 
+
+void setup() {
+      Serial5.begin(9600);
+      pinMode(led_b, OUTPUT);
+      pinMode(led_c, OUTPUT);
+      pinMode(led_d, OUTPUT);
+      pinMode(Pink1, OUTPUT); 
+      pinMode(Orange1, OUTPUT); 
+      pinMode(Blue1, OUTPUT); 
+      pinMode(Yellow1, OUTPUT);
+      pinMode(Pink2, OUTPUT); 
+      pinMode(Orange2, OUTPUT); 
+    //calibracion(inicio);
+      pinMode(Blue2, OUTPUT); 
+      pinMode(Yellow2, OUTPUT);
+      servo1.attach(pinServo);
+      attachInterrupt(digitalPinToInterrupt(boton),botonazo, RISING); //INTERRUPCION PIN 3;
+      servo1.write(0);
+}
+
+
 void loop(){
+  //while (((inicio != 'L' ) || (inicio != 'E'))&& (contInicio==0)){
+    //contInicio += 1;
+    //inicio = Serial5.read();
+  //}
+  //if ((inicio == 'L' ) || (inicio == 'E')){
+  //}
   //QR=Serial5.read();  
-  QR = 'c';
+  QR = 'b';
   while ((QR == 'b') || (QR == 'c') || (QR == 'd')){
-   distancia_pilas(); //funcion para encender leds de pilas que esten llenas 
-   distancia_prodint();//funcion especifica para tomar distancia de la pila de interés
-   distancia_pila= distancia_pilaprod(QR);
-   SerialUSB.println("Distancia a pila: ");
-   SerialUSB.println(distancia_pila);
-   cajasp=Cantidad_cajasp(distancia_pila);
-   SerialUSB.println("Cantidad de cajas: ");
-   SerialUSB.println(cajasp);
-   //scajas=cajasp+'0';
-   //Serial5.write(scajas);
-   //distancia_pilacarga();
-   cajasc=1;//Cantidad_cajasp(distancia_carga);
-   distancia_vertical (cajasc);
-   delay(1000);
-   servo1.write(0);
-   delay (1000);
-   servo1.write (68);
-   delay(1000);
-   distancia_vertical (cajasc);
-   movimiento_horizontal(QR);
-   distancia_vertical (cajasp);
-   delay(1000);
-   servo1.write(0);
-   delay(1000);
-   distancia_vertical (cajasp);
-   movimiento_horizontal(QR); 
-  }
+     delay(1000);
+     distancia_pilas(); //funcion para encender leds de pilas que esten llenas 
+     distancia_prodint();//funcion especifica para tomar distancia de la pila de interés
+     distancia_pila= distancia_pilaprod(QR);
+     SerialUSB.println("Distancia a pila: ");
+     SerialUSB.println(distancia_pila);
+     cajasp=Cantidad_cajasp(distancia_pila);
+     SerialUSB.println("Cantidad de cajas: ");
+     SerialUSB.println(cajasp);
+     //scajas=cajasp+'0';
+     //Serial5.write(scajas);
+     //distancia_pilacarga();
+     cajasc=1;//Cantidad_cajasp(distancia_carga);
+     distancia_vertical (cajasc);
+     delay(1000);
+     servo1.write(0);
+     delay (1000);
+     servo1.write (68);
+     delay(1000);
+     distancia_vertical (cajasc);
+     delay(1000);
+     movimiento_horizontal(QR);
+     distancia_vertical (cajasp);
+     delay(1000);
+     servo1.write(0);
+     delay(1000);
+     distancia_vertical (cajasp);
+     delay(1000);
+     movimiento_horizontal(QR); 
+    }
 }
