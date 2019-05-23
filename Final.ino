@@ -287,17 +287,20 @@ void botonazo(){
 
 //*****Interrupción de funcionamiento por pila llena*****//
 void pilallena(){
+  if (cajasp==5){
+  Serial5.write("e")
   //lectura de qr y guardado en QR2
   QR2=QR;
   distanciaint=distancia_pila;
   while (QR2==QR || distanciaint==distancia_pila){
     //abrir camara para leer qr
+    //distancia_pilacarga();
     Serial5.write("t");
     QR2=Serial5.read();
     distanciaint=distancia_pilaprod(QR2);
     if (distanciaint!=distancia_pila && QR2==QR){
       distancia_pila=distanciaint;
-      Serial5.write(distancia_pila);
+      cajasp=Cantidad_cajasp(distancia_pila);
       break;
       //APAGAR LED RESPECTIVO
       //cajasp=Cantidad_cajasp(distancia_pila);
@@ -305,8 +308,23 @@ void pilallena(){
    }
    QR=QR2;
    distancia_pila=distanciaint;
+   cajasp=Cantidad_cajasp(distancia_pila);
   }
-
+}
+void distancia_pilacarga(){
+  //Serial5.write("d");
+  //ccajas=Serial5.read();
+  //cajasc=ccajas-'0';
+  //if (cajasc==0){
+  //Serial5.write("f")
+  //while (cajasc==0){
+  //Serial5.write("d");
+  //ccajas=Serial5.read();
+  //cajasc=ccajas-'0';
+  //}
+  //}
+  
+  }
 
 //*****Función para movimiento horizontal*****//
 void movimiento_horizontal (char qr){
@@ -434,22 +452,26 @@ void loop(){
   //}
   //if ((inicio == 'L' ) || (inicio == 'E')){
   //}
-  //QR=Serial5.read();  
+  //QR=Serial5.read(); 
+  //Serial5.write("t");
+  //QR=Serial5.read(); 
   QR = 'b';
   while ((QR == 'b') || (QR == 'c') || (QR == 'd')){
+      //Serial5.write("t");
+     //QR=Serial5.read();  
      delay(1000);
      distancia_pilas(); //funcion para encender leds de pilas que esten llenas 
      distancia_prodint();//funcion especifica para tomar distancia de la pila de interés
+    //distancia_pilacarga();
      distancia_pila= distancia_pilaprod(QR);
      SerialUSB.println("Distancia a pila: ");
      SerialUSB.println(distancia_pila);
      cajasp=Cantidad_cajasp(distancia_pila);
      SerialUSB.println("Cantidad de cajas: ");
      SerialUSB.println(cajasp);
-     //scajas=cajasp+'0';
-     //Serial5.write(scajas);
-     //distancia_pilacarga();
      cajasc=1;//Cantidad_cajasp(distancia_carga);
+     //pilallena();
+     // Serial5.write("r");  
      distancia_vertical (cajasc);
      delay(1000);
      servo1.write(0);
