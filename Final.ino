@@ -425,7 +425,49 @@ void distancia_vertical(int cant_cajas){
     }
   }
 
+void distancia_cargav(int cajascarga){
+    switch (cant_cajas){
+    case 1:
+      direccion2=!direccion2;
+      pasos_restantes2=1225;
+      while(pasos_restantes2>0){
+        pasov();
+        pasos_restantes2--;
+        delay (13);
+      } 
+      break;
+    case 2:
+      direccion2=!direccion2;
+      pasos_restantes2=825;
+      while(pasos_restantes2>0){
+        pasov();
+        pasos_restantes2--;
+        delay (13);
+      } 
+      break;
+    case 3:
+      direccion2=!direccion2;
+      pasos_restantes2=425;
+      while(pasos_restantes2>0){
+        pasov();
+        pasos_restantes2--;
+        delay (13);
+      } 
+    case 4:
+      direccion2=!direccion2;
+      pasos_restantes2=225;
+      while(pasos_restantes2>0){
+        pasov();
+        pasos_restantes2--;
+        delay (13);
+      } 
+      break;
+    default:
+      break;
+    }
 
+
+}
 void setup() {
       Serial5.begin(9600);
       pinMode(led_b, OUTPUT);
