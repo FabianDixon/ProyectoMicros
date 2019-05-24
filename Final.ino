@@ -288,14 +288,14 @@ void botonazo(){
 //*****Interrupción de funcionamiento por pila llena*****//
 void pilallena(){
   if (cajasp==5){
-  Serial5.write("e");
+  Serial5.write('e');
   //lectura de qr y guardado en QR2
   QR2=QR;
   distanciaint=distancia_pila;
   while (QR2==QR || distanciaint==distancia_pila){
     //abrir camara para leer qr
     //distancia_pilacarga();
-    Serial5.write("t");
+    Serial5.write('t');
     QR2=Serial5.read();
     distanciaint=distancia_pilaprod(QR2);
     if (distanciaint!=distancia_pila && QR2==QR){
@@ -313,13 +313,13 @@ void pilallena(){
 }
 
 void distancia_pilacarga(){
-  Serial5.write("d");
+  Serial5.write('d');
   ccajas=Serial5.read();
   cajasc=ccajas-'0';
     if (cajasc==0){
-    Serial5.write("f");
+    Serial5.write('f');
     while (cajasc==0){
-      Serial5.write("d");
+      Serial5.write('d');
       ccajas=Serial5.read();
       cajasc=ccajas-'0';
       }
@@ -447,30 +447,34 @@ void setup() {
 
 
 void loop(){
-  //while (((inicio != 'L' ) || (inicio != 'E'))&& (contInicio==0)){
-   //inicio = Serial5.read();
-  //}
+  while (((inicio != 'L' ) || (inicio != 'E'))&& (contInicio==0)){
+   inicio = Serial5.read();
+ }
   delay(1000);
-  //if ((inicio == 'L' ) || (inicio == 'E')){
+  if ((inicio == 'L' ) || (inicio == 'E')){
     //QR=Serial5.read();
-    //contInicio += 1;
-    //Serial5.write("t");
+    contInicio += 1;
+    //Serial5.write('t');
    // SerialUSB.println(QR);
-  //}
-  //Serial5.write("t");
-  //QR=Serial5.read();
+  }
+  Serial5.write('t');
+  QR=Serial5.read();
     
-  QR = 'd';
+  //QR = 'd';
   while ((QR == 'b') || (QR == 'c') || (QR == 'd')){
-     //Serial5.write("t");
+     Serial5.write('t');
+     QR=Serial5.read();
     // QR='b';
      delay(1000);
      distancia_pilas(); //funcion para encender leds de pilas que esten llenas 
      distancia_prodint();//funcion especifica para tomar distancia de la pila de interés
+     distancia_pilacarga();
+     Cantidad_cajasp(distancia_carga);
      distancia_pila= distancia_pilaprod(QR);
      SerialUSB.println("Distancia a pila: ");
      SerialUSB.println(distancia_pila);
      cajasp=Cantidad_cajasp(distancia_pila);
+     pilallena();
      SerialUSB.println("Cantidad de cajas: ");
      SerialUSB.println(cajasp);
      //scajas=cajasp+'0';
